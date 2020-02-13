@@ -18,20 +18,21 @@
  */
 
 /*!
- * \file tvm/tir/lowered_func.h
+ * \file tvm/lowered_func.h
  * \brief Information about a lowered TVM function.
  *  This data structure is final step toward codegen.
  */
-#ifndef TVM_TIR_LOWERED_FUNC_H_
-#define TVM_TIR_LOWERED_FUNC_H_
+#ifndef TVM_LOWERED_FUNC_H_
+#define TVM_LOWERED_FUNC_H_
 
-#include <tvm/node/container.h>
-#include <tvm/tir/expr.h>
-#include <tvm/tir/stmt.h>
+#include <tvm/top/tensor.h>
+
 #include <string>
 
+#include "expr.h"
+#include "tvm/node/container.h"
+
 namespace tvm {
-namespace tir {
 
 // Internal node container of lowered function.
 class LoweredFuncNode;
@@ -40,7 +41,7 @@ class LoweredFuncNode;
  * \brief LoweredFunc represents function after lowering.
  *  This is the final IR representation before codegen.
  */
-class LoweredFunc : public FunctionRef {
+class LoweredFunc : public ir::FunctionRef {
  public:
   LoweredFunc() {}
   explicit LoweredFunc(ObjectPtr<Object> n) : FunctionRef(n) {}
@@ -64,7 +65,7 @@ enum LoweredFuncType : int {
 };
 
 /*! \brief Node container of LoweredFunc */
-class LoweredFuncNode : public tir::FunctionBaseNode {
+class LoweredFuncNode : public ir::FunctionBaseNode {
  public:
   /*! \brief The name of the function */
   std::string name;
@@ -137,13 +138,13 @@ class LoweredFuncNode : public tir::FunctionBaseNode {
 inline const LoweredFuncNode* LoweredFunc::operator->() const {
   return static_cast<const LoweredFuncNode*>(get());
 }
-}  // namespace tir
+
 }  // namespace tvm
 
 namespace std {
 template <>
-struct hash<::tvm::tir::LoweredFunc> : public tvm::ObjectHash {
+struct hash<::tvm::LoweredFunc> : public tvm::ObjectHash {
 };
 }
 
-#endif  // TVM_TIR_LOWERED_FUNC_H_
+#endif  // TVM_LOWERED_FUNC_H_

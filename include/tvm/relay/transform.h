@@ -24,6 +24,7 @@
 #ifndef TVM_RELAY_TRANSFORM_H_
 #define TVM_RELAY_TRANSFORM_H_
 
+#include <tvm/packed_func_ext.h>
 #include <tvm/relay/attrs/transform.h>
 #include <tvm/ir/transform.h>
 #include <tvm/relay/expr.h>
@@ -183,7 +184,7 @@ TVM_DLL Pass InferType();
  *
  * \return The pass.
  */
-TVM_DLL Pass EliminateCommonSubexpr(runtime::PackedFunc fskip = nullptr);
+TVM_DLL Pass EliminateCommonSubexpr(PackedFunc fskip = nullptr);
 
 /*!
  * \brief Combine parallel 2d convolutions into a single convolution if the
@@ -317,6 +318,7 @@ TVM_DLL Pass PrintIR(bool show_meta_data = true);
  */
 TVM_DLL Pass PartitionGraph();
 
+TVM_DLL Pass AmorphGraph();
 }  // namespace transform
 
 /*!

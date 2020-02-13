@@ -18,16 +18,15 @@
  */
 
 /*!
- * \file tvm/tir/data_layout.h
+ * \file tvm/data_layout.h
  * \brief Layout expression to describe the data organization of a tensor.
  *  And BijectiveLayout to mapping two data layouts between each other.
  */
-#ifndef TVM_TIR_DATA_LAYOUT_H_
-#define TVM_TIR_DATA_LAYOUT_H_
+#ifndef TVM_DATA_LAYOUT_H_
+#define TVM_DATA_LAYOUT_H_
 
 
-#include <tvm/tir/expr.h>
-#include <tvm/tir/op.h>
+#include <tvm/expr.h>
 
 #include <string>
 #include <sstream>
@@ -35,16 +34,16 @@
 #include <utility>
 #include <algorithm>
 
+#include "expr_operator.h"
 
 namespace tvm {
-namespace tir {
 
 class LayoutAxis {
  public:
   static const LayoutAxis& Get(const char name);
 
   // Get the singleton LayoutAxis using itvar->var->name_hint
-  static const LayoutAxis& Get(const tir::IterVar& itvar);
+  static const LayoutAxis& Get(const IterVar& itvar);
 
   // Get the singleton LayoutAxis using name[0] (size of name must be 1).
   static const LayoutAxis& make(const std::string& name);
@@ -103,7 +102,7 @@ class LayoutNode : public Object {
    *   it is a variable for a primal axis, but a constant for a subordinate axis.
    *   Empty for scalar's layout.
    */
-  Array<tir::IterVar> axes;
+  Array<IterVar> axes;
 
   void VisitAttrs(AttrVisitor* v) {
     v->Visit("name", &name);
@@ -133,7 +132,7 @@ class Layout : public ObjectRef {
   /*! \brief default constructor */
   Layout() = default;
 
-  explicit Layout(const Array<tir::IterVar>& axes);
+  explicit Layout(const Array<IterVar>& axes);
 
   /*! \brief construct from a string */
   Layout(const char* name) : Layout(std::string(name)) {} // NOLINT(*)
@@ -265,7 +264,7 @@ class Layout : public ObjectRef {
    */
   bool Contains(const LayoutAxis& axis) const {
     if (!defined()) return false;
-    for (const tir::IterVar var : operator->()->axes) {
+    for (const IterVar var : operator->()->axes) {
       if (var->var->name_hint == axis.name()) {
         return true;
       }
@@ -277,7 +276,7 @@ class Layout : public ObjectRef {
     CHECK(defined()) << "Try to access axis from an undefined layout.";
     int32_t index = i < 0 ? static_cast<int32_t>(ndim() + i) : i;
     CHECK(index >= 0 && static_cast<size_t>(index) < ndim()) << "Invalid index " << i;
-    const tir::IterVar axis = operator->()->axes[index];
+    const IterVar axis = operator->()->axes[index];
     return LayoutAxis::Get(axis);
   }
 
@@ -372,7 +371,7 @@ class BijectiveLayout : public ObjectRef {
 inline const BijectiveLayoutNode* BijectiveLayout::operator->() const {
   return static_cast<const BijectiveLayoutNode*>(get());
 }
-}  // namespace tir
+
 }  // namespace tvm
 
-#endif  // TVM_TIR_DATA_LAYOUT_H_
+#endif  // TVM_DATA_LAYOUT_H_

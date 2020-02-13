@@ -18,21 +18,20 @@
  */
 
 /*!
- * \file tvm/tir/buffer.h
+ * \file tvm/buffer.h
  * \brief Symbolic n-dimensional array, to represent a memory buffer.
  */
-#ifndef TVM_TIR_BUFFER_H_
-#define TVM_TIR_BUFFER_H_
-
-#include <tvm/node/container.h>
-#include <tvm/tir/expr.h>
-#include <tvm/tir/op.h>
+#ifndef TVM_BUFFER_H_
+#define TVM_BUFFER_H_
 
 #include <string>
 
+#include "expr.h"
+#include "expr_operator.h"
+#include "tvm/node/container.h"
 
 namespace tvm {
-namespace tir {
+
 // Internal node container Buffer
 class BufferNode;
 
@@ -187,6 +186,5 @@ inline const BufferNode* Buffer::operator->() const {
 TVM_DLL Buffer decl_buffer(Array<PrimExpr> shape,
                            DataType dtype = DataType::Float(32),
                            std::string name = "buffer");
-}  // namespace tir
 }  // namespace tvm
-#endif  // TVM_TIR_BUFFER_H_
+#endif  // TVM_BUFFER_H_

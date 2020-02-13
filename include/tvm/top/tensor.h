@@ -18,27 +18,26 @@
  */
 
 /*!
- * \file tvm/te/tensor.h
+ * \file tvm/top/tensor.h
  * \brief Dataflow tensor object
  */
-#ifndef TVM_TE_TENSOR_H_
-#define TVM_TE_TENSOR_H_
+#ifndef TVM_TOP_TENSOR_H_
+#define TVM_TOP_TENSOR_H_
 
 #include <tvm/node/container.h>
 #include <tvm/arith/bound.h>
-#include <tvm/tir/expr.h>
-#include <tvm/tir/op.h>
+#include <tvm/expr.h>
+#include <tvm/expr_operator.h>
 
 #include <string>
 #include <vector>
 #include <utility>
 #include <type_traits>
 
-namespace tvm {
-namespace te {
 
-using arith::IntSet;
-using namespace tvm::tir;
+
+namespace tvm {
+namespace top {
 
 // Internal node container of Tensor
 class TensorNode;
@@ -140,7 +139,7 @@ class Tensor : public ObjectRef {
 };
 
 /*! \brief Operation that produces tensors */
-class Operation : public tir::FunctionRef {
+class Operation : public ir::FunctionRef {
  public:
   /*! \brief default constructor  */
   Operation() {}
@@ -216,18 +215,18 @@ inline bool Tensor::operator!=(const Tensor& other) const {
 
 // macro to turn every operation of slice to expression
 #define DEFINE_OVERLOAD_SLICE_UNARY_OP(Op)                              \
-  inline PrimExpr operator Op (const Tensor::Slice& a) {                \
-    return Op a.operator PrimExpr() ;                                   \
+  inline PrimExpr operator Op (const Tensor::Slice& a) {           \
+    return Op a.operator PrimExpr() ;                              \
   }                                                                     \
 
 #define DEFINE_OVERLOAD_SLICE_BINARY_OP(Op)                             \
   template<typename T>                                                  \
-  inline PrimExpr operator Op (const Tensor::Slice& a, const T& b) {    \
-    return a.operator PrimExpr() Op b;                                  \
+  inline PrimExpr operator Op (const Tensor::Slice& a, const T& b) { \
+    return a.operator PrimExpr() Op b;                             \
   }                                                                     \
   template<typename T>                                                  \
-  inline PrimExpr operator Op (const T& a, const Tensor::Slice& b) {    \
-    return a Op b.operator PrimExpr();                                  \
+  inline PrimExpr operator Op (const T& a, const Tensor::Slice& b) {  \
+    return a Op b.operator PrimExpr();                                \
   }                                                                        \
   inline PrimExpr operator Op (const Tensor::Slice& a, const Tensor::Slice& b) { \
     return a.operator PrimExpr() Op b.operator PrimExpr();                  \
@@ -249,17 +248,17 @@ DEFINE_OVERLOAD_SLICE_BINARY_OP(<<);
 DEFINE_OVERLOAD_SLICE_BINARY_OP(>);  // NOLINT(*)
 DEFINE_OVERLOAD_SLICE_BINARY_OP(<);  // NOLINT(*)
 
-}  // namespace te
+}  // namespace top
 }  // namespace tvm
 
 namespace std {
 template <>
-struct hash<::tvm::te::Operation> : public ::tvm::ObjectHash {
+struct hash<::tvm::top::Operation> : public ::tvm::ObjectHash {
 };
 
 template <>
-struct hash<::tvm::te::Tensor> {
-  std::size_t operator()(const ::tvm::te::Tensor& k) const {
+struct hash<::tvm::top::Tensor> {
+  std::size_t operator()(const ::tvm::top::Tensor& k) const {
     ::tvm::ObjectHash hasher;
     if (k.defined() && k->op.defined()) {
       return hasher(k->op);
@@ -269,4 +268,4 @@ struct hash<::tvm::te::Tensor> {
   }
 };
 }  // namespace std
-#endif  // TVM_TE_TENSOR_H_
+#endif  // TVM_TOP_TENSOR_H_

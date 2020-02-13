@@ -139,11 +139,11 @@ class NodeFunctor<R(const ObjectRef& n, Args...)> {
  * \brief Useful macro to set NodeFunctor dispatch in a global static field.
  *
  * \code
- *  // Use NodeFunctor to implement ReprPrinter similar to Visitor Pattern.
+ *  // Use NodeFunctor to implement NodePrinter similar to Visitor Pattern.
  *  // vtable allows easy patch of new Node types, without changing
- *  // interface of ReprPrinter.
+ *  // interface of NodePrinter.
  *
- *  class ReprPrinter {
+ *  class NodePrinter {
  *   public:
  *    std::ostream& stream;
  *    // the dispatch function.
@@ -152,18 +152,18 @@ class NodeFunctor<R(const ObjectRef& n, Args...)> {
  *      f(e, this);
  *    }
  *
- *    using FType = NodeFunctor<void (const ObjectRef&, ReprPrinter* )>;
+ *    using FType = NodeFunctor<void (const ObjectRef&, NodePrinter* )>;
  *    // function to return global function table
  *    static FType& vtable();
  *  };
  *
  *  // in cpp/cc file
- *  ReprPrinter::FType& ReprPrinter::vtable() { // NOLINT(*)
+ *  NodePrinter::FType& NodePrinter::vtable() { // NOLINT(*)
  *    static FType inst; return inst;
  *  }
  *
- *  TVM_STATIC_IR_FUNCTOR(ReprPrinter, vtable)
- *  .set_dispatch<Add>([](const ObjectRef& ref, ReprPrinter* p) {
+ *  TVM_STATIC_IR_FUNCTOR(NodePrinter, vtable)
+ *  .set_dispatch<Add>([](const ObjectRef& ref, NodePrinter* p) {
  *    auto* n = static_cast<const Add*>(ref.get());
  *    p->print(n->a);
  *    p->stream << '+'

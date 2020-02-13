@@ -18,28 +18,27 @@
  */
 
 /*!
- * \file tvm/tir/ir_pass.h
+ * \file tvm/ir_pass.h
  * \brief Collection of IR pass functions
  *
  *  When the pass functions in this file are for Stmt,
  *  we can use PassFunction(Evaluate(expr)) to apply it to Expr
  */
-#ifndef TVM_TIR_IR_PASS_H_
-#define TVM_TIR_IR_PASS_H_
+#ifndef TVM_IR_PASS_H_
+#define TVM_IR_PASS_H_
 
-#include <tvm/te/schedule.h>
-#include <tvm/tir/expr.h>
-#include <tvm/tir/buffer.h>
-#include <tvm/tir/lowered_func.h>
+#include <tvm/top/schedule.h>
 
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <string>
-
+#include "expr.h"
+#include "buffer.h"
+#include "lowered_func.h"
 
 namespace tvm {
-namespace tir {
+namespace ir {
 
 /*!
  * \brief Simplify the expression.
@@ -205,7 +204,7 @@ Stmt Inline(Stmt stmt,
  * \return Transformed stmt.
  */
 Stmt StorageFlatten(Stmt stmt,
-                    Map<te::Tensor, Buffer> extern_buffer,
+                    Map<top::Tensor, Buffer> extern_buffer,
                     int cache_line_size,
                     bool create_bound_attribute = false);
 
@@ -219,8 +218,8 @@ Stmt StorageFlatten(Stmt stmt,
  * \return Transformed stmt.
  */
 Stmt RewriteForTensorCore(Stmt stmt,
-                          te::Schedule schedule,
-                          Map<te::Tensor, Buffer> extern_buffer);
+                          top::Schedule schedule,
+                          Map<top::Tensor, Buffer> extern_buffer);
 
 /*!
  * \brief Verify if there is any argument bound to compact buffer.
@@ -594,6 +593,8 @@ bool VerifyMemory(LoweredFunc func, int device_type);
 bool VerifyGPUCode(Stmt stmt,
                    Map<std::string, PrimExpr> constraints);
 
-}  // namespace tir
+
+}  // namespace ir
 }  // namespace tvm
-#endif  // TVM_TIR_IR_PASS_H_
+
+#endif  // TVM_IR_PASS_H_

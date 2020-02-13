@@ -18,22 +18,19 @@
  */
 
 /*!
- * \file tvm/target/codegen.h
- * \brief Translates IRModule to runtime::Module.
+ * \file tvm/codegen.h
+ * \brief Collection of Lowlevel IR pass to codegen.
  */
-#ifndef TVM_TARGET_CODEGEN_H_
-#define TVM_TARGET_CODEGEN_H_
-
-#include <tvm/runtime/packed_func.h>
-#include <tvm/tir/expr.h>
-#include <tvm/tir/lowered_func.h>
-#include <tvm/target/target.h>
+#ifndef TVM_CODEGEN_H_
+#define TVM_CODEGEN_H_
 
 #include <string>
-
+#include "expr.h"
+#include "lowered_func.h"
+#include "runtime/packed_func.h"
 
 namespace tvm {
-/*! \brief namespace for target translation and codegen. */
+/*! \brief namespace for lowlevel IR pass and codegen */
 namespace codegen {
 // use packed function from runtime.
 using runtime::PackedFunc;
@@ -48,7 +45,7 @@ using runtime::TVMRetValue;
  *
  * \note Calls global API function  "_codegen_build_" + target
  */
-runtime::Module Build(const Array<tir::LoweredFunc>& funcs,
+runtime::Module Build(const Array<LoweredFunc>& funcs,
                       const std::string& target);
 /*!
  * \brief Pack imported device library to a C file.
@@ -78,4 +75,5 @@ runtime::Module PackImportsToLLVM(const runtime::Module& m,
                                   const std::string& target_triple);
 }  // namespace codegen
 }  // namespace tvm
-#endif  // TVM_TARGET_CODEGEN_H_
+
+#endif  // TVM_CODEGEN_H_

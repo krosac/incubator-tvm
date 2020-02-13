@@ -25,15 +25,11 @@
 #define TVM_ARITH_INT_SET_H_
 
 #include <tvm/ir/expr.h>
-#include <tvm/tir/expr.h>
+#include <tvm/expr.h>
 #include <unordered_map>
 
 namespace tvm {
 namespace arith {
-
-using tir::Var;
-using tir::VarNode;
-using tir::IterVar;
 
 //-----------------------------------------------
 // Integer set data structure.
@@ -169,7 +165,7 @@ IntSet EvalSet(PrimExpr e,
  * \return An integer set that can cover all the possible values of e.
  */
 IntSet EvalSet(PrimExpr e,
-               const std::unordered_map<const tir::VarNode*, IntSet>& dom_map);
+               const std::unordered_map<const VarNode*, IntSet>& dom_map);
 
 /*!
  * \brief Find an symbolic integer set that contains is union over

@@ -50,8 +50,6 @@ namespace arith {
 // Forward declare Analyzer
 class Analyzer;
 
-using tir::Var;
-
 /*!
  * \brief Constant integer up and lower bound(inclusive).
  *  Useful for value bound analysis.

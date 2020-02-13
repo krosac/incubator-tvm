@@ -18,19 +18,20 @@
  */
 
 /*!
- * \file tvm/te/tensor_intrin.h
+ * \file tvm/top/tensor_intrin.h
  * \brief Tensor intrinsic operations.
  */
-#ifndef TVM_TE_TENSOR_INTRIN_H_
-#define TVM_TE_TENSOR_INTRIN_H_
+#ifndef TVM_TOP_TENSOR_INTRIN_H_
+#define TVM_TOP_TENSOR_INTRIN_H_
 
-#include <tvm/te/tensor.h>
-#include <tvm/tir/buffer.h>
+#include <tvm/top/tensor.h>
+#include <tvm/buffer.h>
 
 #include <string>
 
+
 namespace tvm {
-namespace te {
+namespace top {
 
 // Internal node container of tensor intrinsics.
 class TensorIntrinNode;
@@ -175,6 +176,6 @@ inline const TensorIntrinCallNode* TensorIntrinCall::operator->() const {
   return static_cast<const TensorIntrinCallNode*>(get());
 }
 
-}  // namespace te
+}  // namespace top
 }  // namespace tvm
-#endif  // TVM_TE_TENSOR_INTRIN_H_
+#endif  // TVM_TOP_TENSOR_INTRIN_H_
