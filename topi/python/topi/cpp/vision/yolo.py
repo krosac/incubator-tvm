@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 """FFI for Yolo TOPI ops and schedules"""
-import tvm._ffi
 
-tvm._ffi._init_api("topi.vision.yolo", "topi.cpp.vision.yolo")
+from tvm._ffi.function import _init_api_prefix
+
+_init_api_prefix("topi.cpp.vision.yolo", "topi.vision.yolo")

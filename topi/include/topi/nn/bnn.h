@@ -24,17 +24,17 @@
 #ifndef TOPI_NN_BNN_H_
 #define TOPI_NN_BNN_H_
 
-#include <tvm/te/operation.h>
-#include <tvm/tir/ir_pass.h>
-#include <topi/tags.h>
-#include <topi/detail/constant_utils.h>
-
 #include <string>
+
+#include "tvm/top/operation.h"
+#include "tvm/ir_pass.h"
+#include "topi/tags.h"
+#include "topi/detail/constant_utils.h"
 
 namespace topi {
 namespace nn {
 using namespace tvm;
-using namespace tvm::te;
+using namespace tvm::top;
 
 /*!
 * \brief Binarization and bit-packing along a certain axis.
@@ -47,7 +47,7 @@ using namespace tvm::te;
 *
 * \return Output tensor with dtype uint32
 */
-inline tvm::te::Tensor binarize_pack(const tvm::te::Tensor& data,
+inline tvm::top::Tensor binarize_pack(const tvm::top::Tensor& data,
                                  int axis,
                                  std::string name = "PackedInput",
                                  std::string tag = "binarize_pack") {
@@ -59,11 +59,11 @@ inline tvm::te::Tensor binarize_pack(const tvm::te::Tensor& data,
   Array<PrimExpr> oshape;
   for (size_t i = 0; i < n; ++i) {
     oshape.push_back(i == static_cast<size_t>(axis) ?
-                     tvm::tir::Simplify(indexdiv(ishape[i], 32)) :
+                     tvm::ir::Simplify(indexdiv(ishape[i], 32)) :
                      ishape[i]);
   }
 
-  return tvm::te::compute(
+  return tvm::top::compute(
     oshape,
     [&](const Array<Var>& indices) {
       Array<PrimExpr> start_idx;
@@ -99,8 +99,8 @@ inline tvm::te::Tensor binarize_pack(const tvm::te::Tensor& data,
 *
 * \return Tensor with shape [batch, out_dim], dtype is float32
 */
-inline tvm::te::Tensor binary_dense(const tvm::te::Tensor& data,
-                                const tvm::te::Tensor& weight) {
+inline tvm::top::Tensor binary_dense(const tvm::top::Tensor& data,
+                                const tvm::top::Tensor& weight) {
   CHECK_EQ(data->shape.size(), 2) << "binary_dense requires 2-D data";
   CHECK_EQ(weight->shape.size(), 2) << "binary_dense requires 2-D weight";
   CHECK_EQ(data->dtype, DataType::UInt(32)) << "binary_dense requires uint32 data";
@@ -110,14 +110,14 @@ inline tvm::te::Tensor binary_dense(const tvm::te::Tensor& data,
   auto in_dim = data->shape[1];
   auto out_dim = weight->shape[0];
 
-  auto k = tvm::te::reduce_axis(Range(0, in_dim), "k");
-  auto matmul = tvm::te::compute(
+  auto k = tvm::reduce_axis(Range(0, in_dim), "k");
+  auto matmul = tvm::top::compute(
     { batch, out_dim },
     [&](Var i, Var j) {
       return tvm::sum(popcount(data(i, k) ^ weight(j, k)), { k });
     }, "tensor", "binary_dense");
 
-  return tvm::te::compute(
+  return tvm::top::compute(
     { batch, out_dim },
     [&](Var i, Var j) {
       return 32 * in_dim - 2.0f * matmul(i, j);

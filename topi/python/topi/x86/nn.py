@@ -63,7 +63,7 @@ def schedule_softmax(outs):
     s[max_elem].compute_at(s[softmax], fused_outer_axes)
     s[expsum].compute_at(s[softmax], fused_outer_axes)
 
-    if exp is not None:
+    if exp != None:
         s[exp].compute_at(s[softmax], fused_outer_axes)
 
     return s

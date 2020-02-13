@@ -24,16 +24,17 @@
 #ifndef TOPI_ROCM_POOLING_H_
 #define TOPI_ROCM_POOLING_H_
 
-#include <tvm/te/operation.h>
-#include <tvm/target/generic_func.h>
-#include <topi/tags.h>
-#include <topi/detail/fuse.h>
-#include <topi/detail/array_utils.h>
-#include <topi/cuda/pooling.h>
+#include "topi/tags.h"
+#include "topi/detail/fuse.h"
+#include "topi/detail/array_utils.h"
+#include "tvm/top/operation.h"
+#include "tvm/build_module.h"
+
+#include "topi/cuda/pooling.h"
 
 namespace topi {
 using namespace tvm;
-using namespace tvm::te;
+using namespace tvm::top;
 
 namespace rocm {
 

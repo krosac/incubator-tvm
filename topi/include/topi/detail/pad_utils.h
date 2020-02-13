@@ -26,13 +26,13 @@
 
 #include <vector>
 
-#include "tvm/tir/expr.h"
-#include "tvm/tir/op.h"
+#include "tvm/expr.h"
+#include "tvm/expr_operator.h"
 
 namespace topi {
 namespace detail {
 using namespace tvm;
-using namespace tvm::te;
+using namespace tvm::top;
 
 /*!
  * \brief Get padding size for each side given padding height and width

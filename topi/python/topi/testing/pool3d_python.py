@@ -18,7 +18,6 @@
 """max_pool3d and avg_pool3d in python"""
 import math
 import numpy as np
-import tvm
 
 def pool3d_ncdhw_python(np_data, kernel,
                         strides, padding,
@@ -40,17 +39,10 @@ def pool3d_ncdhw_python(np_data, kernel,
         assert out_shape[3] == int(math.floor(float(in_shape[3] - k_h + pt + pb) / s_h) + 1)
         assert out_shape[4] == int(math.floor(float(in_shape[4] - k_w + pl + pr) / s_w) + 1)
 
-    fill_value = tvm.const(0.0, dtype).value
-    if not(count_include_pad) and pool_type == 'max':
-        fill_value = tvm.min_value(dtype).value
-
-    pad_np = np.full(shape=(in_n, in_c,
-                            in_d + pf + pk,
-                            in_h + pt + pb,
-                            in_w + pl + pr),
-                     fill_value=fill_value,
-                     dtype=dtype)
-
+    pad_np = np.zeros(shape=(in_n, in_c,
+                             in_d + pf + pk,
+                             in_h + pt + pb,
+                             in_w + pl + pr)).astype(dtype)
     no_zero = (range(in_n),
                range(in_c),
                (range(pf, in_d + pf)),
@@ -89,5 +81,5 @@ def pool3d_ncdhw_python(np_data, kernel,
     else:
         raise ValueError("pool type {} is not supported".format(pool_type))
 
-    ret_np = np.maximum(ret_np, fill_value)
+    ret_np = np.maximum(ret_np, 0.0)
     return ret_np

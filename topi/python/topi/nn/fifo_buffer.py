@@ -76,7 +76,7 @@ def fifo_buffer(data, buffer, axis):
                                             buffer[i + data_size],
                                             data[i - buflen + data_size]),
                            name='new_buffer')
-    if len(buffer.shape) == 2:
+    elif len(buffer.shape) == 2:
         if axis == 0:
             return tvm.compute(buffer.shape,
                                lambda i, j:

@@ -24,12 +24,13 @@
 #ifndef TOPI_NN_BIAS_ADD_H_
 #define TOPI_NN_BIAS_ADD_H_
 
-#include <tvm/te/operation.h>
-#include <topi/tags.h>
-#include <topi/broadcast.h>
-#include <topi/transform.h>
-
 #include <string>
+
+#include "topi/tags.h"
+#include "topi/broadcast.h"
+#include "topi/transform.h"
+#include "tvm/top/operation.h"
+#include "tvm/expr_operator.h"
 
 namespace topi {
 namespace nn {
@@ -42,8 +43,8 @@ namespace nn {
 * \param axis The axis to add the bias to.
 * \return Tensor with shape [batch, in_dim]
 */
-inline tvm::te::Tensor bias_add(const tvm::te::Tensor& data,
-                                 const tvm::te::Tensor& bias,
+inline tvm::top::Tensor bias_add(const tvm::top::Tensor& data,
+                                 const tvm::top::Tensor& bias,
                                  int axis) {
   int data_ndim = data->shape.size();
   if (axis < 0) {

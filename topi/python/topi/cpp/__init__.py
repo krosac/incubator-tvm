@@ -23,4 +23,5 @@ from . import vision
 from . import x86
 from . import generic
 from . import rocm
+from . import image
 from . import util

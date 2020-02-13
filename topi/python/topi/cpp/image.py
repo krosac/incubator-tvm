@@ -14,13 +14,8 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Common x86 related utilities"""
-from __future__ import absolute_import as _abs
-import tvm
+"""FFI for image TOPI ops and schedules"""
 
-def get_fp32_len():
-    mcpu = tvm.target.current_target().mcpu
-    fp32_vec_len = 8
-    if mcpu == 'skylake-avx512' or mcpu == 'cascadelake':
-        fp32_vec_len = 16
-    return fp32_vec_len
+from tvm._ffi.function import _init_api_prefix
+
+_init_api_prefix("topi.cpp.image", "topi.image")

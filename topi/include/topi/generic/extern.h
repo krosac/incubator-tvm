@@ -24,16 +24,15 @@
 #ifndef TOPI_GENERIC_EXTERN_H_
 #define TOPI_GENERIC_EXTERN_H_
 
-#include <tvm/te/operation.h>
-#include <tvm/te/schedule_pass.h>
-#include <tvm/target/generic_func.h>
-#include <topi/tags.h>
-#include <topi/detail/fuse.h>
-#include <topi/generic/injective.h>
+#include "topi/tags.h"
+#include "topi/detail/fuse.h"
+#include "tvm/top/operation.h"
+#include "tvm/build_module.h"
+#include "injective.h"
 
 namespace topi {
 using namespace tvm;
-using namespace tvm::te;
+using namespace tvm::top;
 
 namespace generic {
 /*!
@@ -51,7 +50,7 @@ inline Schedule schedule_extern(const Target& target, Array<Tensor> outs) {
   }
   auto s = create_schedule(out_ops);
 
-  tvm::te::AutoInlineInjective(s);
+  tvm::top::AutoInlineInjective(s);
   for (auto out : outs) {
     if (out->op->IsInstance<ExternOpNode>()) {
       continue;

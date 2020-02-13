@@ -14,13 +14,32 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-"""Common x86 related utilities"""
-from __future__ import absolute_import as _abs
+# pylint: disable=invalid-name
+"""TVM operator for l2 normalize"""
+from __future__ import absolute_import
 import tvm
+from .. import cpp
 
-def get_fp32_len():
-    mcpu = tvm.target.current_target().mcpu
-    fp32_vec_len = 8
-    if mcpu == 'skylake-avx512' or mcpu == 'cascadelake':
-        fp32_vec_len = 16
-    return fp32_vec_len
+@tvm.target.generic_func
+def l2_normalize(data, eps, axis=None):
+    """Perform L2 normalization on the input data
+
+    For axis=None, y(i, j) = x(i, j) / sqrt(max(sum(x^2), eps))
+
+    Parameters
+    ----------
+    data : tvm.Tensor
+        4-D with NCHW or NHWC layout
+
+    eps : float
+        epsilon value
+
+    axis : list of int
+        axis over the normalization applied
+
+    Returns
+    -------
+    output : tvm.Tensor
+        4-D output with same shape
+    """
+    return cpp.nn.l2_normalize(data, eps, axis)

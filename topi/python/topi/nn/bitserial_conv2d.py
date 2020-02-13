@@ -435,7 +435,7 @@ def bitserial_conv2d_legalize(attrs, inputs, types):
 
     Parameters
     ----------
-    attrs : tvm.ir.Attrs
+    attrs : tvm.attrs.Attrs
         Attributes of current convolution
     inputs : list of tvm.relay.Expr
         The args of the Relay expr to be legalized

@@ -36,5 +36,5 @@ def schedule_extern(outs):
     sch: Schedule
         The computation schedule for the op.
     """
-    target = tvm.target.Target.current()
+    target = tvm.target.current_target()
     return cpp.generic.schedule_extern(target, outs)

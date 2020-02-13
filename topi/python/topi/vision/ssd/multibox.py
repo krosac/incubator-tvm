@@ -182,7 +182,7 @@ def hybrid_multibox_transform_loc(cls_prob, loc_pred, anchor,
     threshold : tvm.const
         Threshold to be a positive prediction.
 
-    variances : tvm.nd.NDArray
+    variances : tvm.ndarray
         Variances to be decoded from box regression output.
 
     Returns

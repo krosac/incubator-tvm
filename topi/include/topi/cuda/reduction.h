@@ -24,15 +24,14 @@
 #ifndef TOPI_CUDA_REDUCTION_H_
 #define TOPI_CUDA_REDUCTION_H_
 
-#include <tvm/te/operation.h>
-#include <tvm/te/schedule_pass.h>
-#include <tvm/target/generic_func.h>
-#include <topi/tags.h>
-#include <topi/detail/fuse.h>
+#include "topi/tags.h"
+#include "topi/detail/fuse.h"
+#include "tvm/top/operation.h"
+#include "tvm/build_module.h"
 
 namespace topi {
 using namespace tvm;
-using namespace tvm::te;
+using namespace tvm::top;
 
 namespace cuda {
 /*!
@@ -76,13 +75,13 @@ Schedule ScheduleReduce(const Target& target,
       // Don't know why.
       num_thread = 16;
     }
-    block_x = tvm::te::thread_axis(Range(), "blockIdx.x");
-    thread_x = tvm::te::thread_axis(Range(0, num_thread), "threadIdx.x");
-    thread_y = tvm::te::thread_axis(Range(0, num_thread), "threadIdx.y");
+    block_x = tvm::thread_axis(Range(), "blockIdx.x");
+    thread_x = tvm::thread_axis(Range(0, num_thread), "threadIdx.x");
+    thread_y = tvm::thread_axis(Range(0, num_thread), "threadIdx.y");
   } else {
     all_reduce = true;
     num_thread = target->max_num_threads;
-    thread_x = tvm::te::thread_axis(Range(0, num_thread), "threadIdx.x");
+    thread_x = tvm::thread_axis(Range(0, num_thread), "threadIdx.x");
   }
 
   auto fused_reduce = detail::Fuse(out_stage, out_stage->op.as<ComputeOpNode>()->reduce_axis);
