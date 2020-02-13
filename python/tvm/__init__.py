@@ -15,50 +15,48 @@
 # specific language governing permissions and limitations
 # under the License.
 # pylint: disable=redefined-builtin, wildcard-import
-"""TVM: Open Deep Learning Compiler Stack."""
+"""TVM: Low level DSL/IR stack for tensor computation."""
+from __future__ import absolute_import as _abs
+
 import multiprocessing
 import sys
 import traceback
 
-# top-level alias
-# tvm._ffi
-from ._ffi.base import TVMError, __version__
-from ._ffi.runtime_ctypes import TypeCode, DataType
-from ._ffi.registry import register_object, register_func, register_extension
+from . import _pyversion
 
-# top-level alias
-# tvm.runtime
-from .runtime.object import Object
-from .runtime.ndarray import context, cpu, gpu, opencl, cl, vulkan, metal, mtl
-from .runtime.ndarray import vpi, rocm, opengl, ext_dev, micro_dev
-from .runtime import ndarray as nd
-
-# tvm.ir
-from .ir import IRModule
-from .ir import transform
-from .ir import container
-from . import ir
-
-# others
 from . import tensor
 from . import arith
 from . import expr
 from . import stmt
 from . import make
 from . import ir_pass
+from . import codegen
+from . import container
 from . import schedule
-
+from . import module
+from . import object
+from . import attrs
 from . import ir_builder
 from . import target
 from . import generic
 from . import hybrid
 from . import testing
 from . import error
+from . import datatype
 
+from . import ndarray as nd
+from .ndarray import context, cpu, gpu, opencl, cl, vulkan, metal, mtl
+from .ndarray import vpi, rocm, opengl, ext_dev, micro_dev
 
+from ._ffi.runtime_ctypes import TypeCode, TVMType
+from ._ffi.ndarray import TVMContext
+from ._ffi.function import Function
+from ._ffi.base import TVMError, __version__
 from .api import *
 from .intrin import *
 from .tensor_intrin import decl_tensor_intrin
+from .object import register_object
+from .ndarray import register_extension
 from .schedule import create_schedule
 from .build_module import build, lower, build_config
 from .tag import tag_scope

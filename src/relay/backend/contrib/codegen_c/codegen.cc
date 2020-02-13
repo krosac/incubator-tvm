@@ -194,7 +194,7 @@ class CSourceCodegen : public CSourceModuleCodegenBase {
     }
 
     // Create a CSourceModule
-    const auto* pf = runtime::Registry::Get("runtime.CSourceModuleCreate");
+    const auto* pf = runtime::Registry::Get("module.csource_module_create");
     CHECK(pf != nullptr) << "Cannot find csource module to create the external runtime module";
     return (*pf)(code_stream_.str(), "cc");
   }

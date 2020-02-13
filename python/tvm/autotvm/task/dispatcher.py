@@ -106,7 +106,7 @@ class DispatchContext(object):
             def _alter_conv2d_layout(attrs, inputs, tinfo):
                 workload = get_conv2d_workload(...)
                 dispatch_ctx = autotvm.task.DispatchContext.current
-                target = tvm.target.Target.current()
+                target = tvm.target.current_target()
                 config = dispatch_ctx.query(target, workload)
 
                 # Get conv2d_NCHWc workload from config
@@ -207,7 +207,7 @@ def dispatcher(fworkload):
 
     def dispatch_func(func, *args, **kwargs):
         """The wrapped dispatch function"""
-        tgt = _target.Target.current()
+        tgt = _target.current_target()
         workload = func(*args, **kwargs)
         cfg = DispatchContext.current.query(tgt, workload)
         if cfg.is_fallback and not cfg.template_key:
@@ -282,7 +282,6 @@ class ApplyHistoryBest(DispatchContext):
                        Each row of this file is an encoded record pair.
             Otherwise, it is an iterator.
         """
-        # pylint: disable=import-outside-toplevel
         from pathlib import Path
         from ..record import load_from_file
 
@@ -455,7 +454,6 @@ class ApplyGraphBest(DispatchContext):
                    Each row of this file is an encoded record pair.
             Otherwise, it is an iterator.
         """
-        # pylint: disable=import-outside-toplevel
         from ..record import load_from_file
 
         super(ApplyGraphBest, self).__init__()

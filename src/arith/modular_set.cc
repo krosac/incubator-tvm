@@ -22,8 +22,8 @@
  * \brief Modular set analysis
  */
 #include <tvm/arith/analyzer.h>
-#include <tvm/tir/op.h>
-#include <tvm/tir/expr_functor.h>
+#include <tvm/expr_operator.h>
+#include <tvm/ir_functor_ext.h>
 #include <limits>
 #include <utility>
 #include <unordered_map>
@@ -32,7 +32,7 @@
 namespace tvm {
 namespace arith {
 
-using namespace tir;
+using namespace ir;
 
 TVM_REGISTER_NODE_TYPE(ModularSetNode);
 
@@ -44,8 +44,8 @@ ModularSet::ModularSet(int64_t coeff, int64_t base) {
   data_ = std::move(node);
 }
 
-TVM_STATIC_IR_FUNCTOR(ReprPrinter, vtable)
-.set_dispatch<ModularSetNode>([](const ObjectRef& node, ReprPrinter* p) {
+TVM_STATIC_IR_FUNCTOR(NodePrinter, vtable)
+.set_dispatch<ModularSetNode>([](const ObjectRef& node, NodePrinter* p) {
     auto* op = static_cast<const ModularSetNode*>(node.get());
     p->stream << "ModularSet("
               << "coeff=" << op->coeff << ", base="

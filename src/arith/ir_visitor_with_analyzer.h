@@ -26,11 +26,11 @@
 #define TVM_ARITH_IR_VISITOR_WITH_ANALYZER_H_
 
 #include <tvm/arith/analyzer.h>
-#include <tvm/tir/expr.h>
-#include <tvm/tir/stmt_functor.h>
+#include <tvm/ir.h>
+#include <tvm/ir_functor_ext.h>
 
 namespace tvm {
-namespace tir {
+namespace ir {
 
 class IRVisitorWithAnalyzer final : public StmtExprVisitor {
  public:
@@ -71,6 +71,6 @@ class IRVisitorWithAnalyzer final : public StmtExprVisitor {
   arith::Analyzer analyzer_;
 };
 
-}  // namespace tir
+}  // namespace ir
 }  // namespace tvm
 #endif  // TVM_ARITH_IR_VISITOR_WITH_ANALYZER_H_

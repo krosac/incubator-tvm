@@ -16,10 +16,11 @@
 # under the License.
 """Util to invoke clang in the system."""
 # pylint: disable=invalid-name
+from __future__ import absolute_import as _abs
 import subprocess
 
-from tvm._ffi.base import py_str
-import tvm.target
+from .._ffi.base import py_str
+from .. import codegen
 from . import util
 
 
@@ -43,8 +44,8 @@ def find_clang(required=True):
     matches the major llvm version that built with tvm
     """
     cc_list = []
-    major = tvm.target.codegen.llvm_version_major(allow_none=True)
-    if major is not None:
+    if hasattr(codegen, "llvm_version_major"):
+        major = codegen.llvm_version_major()
         cc_list += ["clang-%d.0" % major]
         cc_list += ["clang-%d" % major]
     cc_list += ["clang"]

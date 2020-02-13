@@ -16,6 +16,6 @@
 # under the License.
 """The Relay virtual machine FFI namespace.
 """
-import tvm._ffi
+from tvm._ffi.function import _init_api
 
-tvm._ffi._init_api("relay._vm", __name__)
+_init_api("relay._vm", __name__)

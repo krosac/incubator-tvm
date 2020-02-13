@@ -144,13 +144,13 @@ def create_workload(net, initializer=None, seed=0):
 
     Returns
     -------
-    mod : tvm.IRModule
+    mod : tvm.relay.Module
         The created relay module.
 
     params : dict of str to NDArray
         The parameters.
     """
-    mod = tvm.IRModule.from_expr(net)
+    mod = relay.Module.from_expr(net)
     mod = relay.transform.InferType()(mod)
     shape_dict = {
         v.name_hint : v.checked_type for v in mod["main"].params}

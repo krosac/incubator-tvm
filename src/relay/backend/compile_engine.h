@@ -25,7 +25,7 @@
 #ifndef TVM_RELAY_BACKEND_COMPILE_ENGINE_H_
 #define TVM_RELAY_BACKEND_COMPILE_ENGINE_H_
 
-#include <tvm/tir/lowered_func.h>
+#include <tvm/lowered_func.h>
 #include <tvm/runtime/module.h>
 #include <tvm/relay/analysis.h>
 #include <tvm/relay/expr.h>
@@ -51,11 +51,11 @@ struct CachedFuncNode : public Object {
   /*! \brief Function name */
   std::string func_name;
   /* \brief The inputs to the function */
-  tvm::Array<te::Tensor> inputs;
+  tvm::Array<top::Tensor> inputs;
   /* \brief The outputs to the function */
-  tvm::Array<te::Tensor> outputs;
+  tvm::Array<top::Tensor> outputs;
   /*! \brief The lowered functions to support the function. */
-  tvm::Array<tir::LoweredFunc> funcs;
+  tvm::Array<tvm::LoweredFunc> funcs;
   /*! \brief Parameter usage states in the shape function. */
   tvm::Array<Integer> shape_func_param_states;
 
@@ -171,8 +171,6 @@ class CCacheValue : public ObjectRef {
  */
 class CompileEngineNode : public Object {
  public:
-  /*! \brief destructor */
-  virtual ~CompileEngineNode() {}
   /*!
    * \brief Get lowered result.
    * \param key The key to the cached function.

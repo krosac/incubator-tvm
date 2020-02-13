@@ -16,6 +16,7 @@
 # under the License.
 #pylint: disable=unused-argument
 """Internal module for quantization."""
-import tvm._ffi
+from __future__ import absolute_import
+from tvm._ffi.function import _init_api
 
-tvm._ffi._init_api("relay._quantize", __name__)
+_init_api("relay._quantize", __name__)

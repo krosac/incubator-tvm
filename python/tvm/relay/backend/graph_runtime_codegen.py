@@ -33,7 +33,9 @@ To connect to the graph runtime, we use a printer that converts our graph format
 into TVM's JSON format. The resulting string can be loaded by
 contrib.graph_runtime or any other TVM runtime compatible systems.
 """
-from tvm.runtime.ndarray import empty
+from __future__ import absolute_import
+
+from tvm.ndarray import empty
 from tvm.relay import _build_module
 from tvm import target as _target
 from tvm import expr as _expr

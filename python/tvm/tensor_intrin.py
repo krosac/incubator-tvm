@@ -15,9 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 """Tensor intrinsics"""
-import tvm._ffi
-
-from tvm.runtime import Object
+from __future__ import absolute_import as _abs
 from . import _api_internal
 from . import api as _api
 from . import expr as _expr
@@ -26,6 +24,7 @@ from . import make as _make
 from . import tensor as _tensor
 from . import schedule as _schedule
 from .build_module import current_build_config
+from ._ffi.object import Object, register_object
 
 
 def _get_region(tslice):
@@ -42,7 +41,7 @@ def _get_region(tslice):
             region.append(_make.range_by_min_extent(begin, 1))
     return region
 
-@tvm._ffi.register_object
+@register_object
 class TensorIntrin(Object):
     """Tensor intrinsic functions for certain computation.
 
@@ -112,7 +111,7 @@ def decl_tensor_intrin(op,
         raise TypeError("expect Operation")
     inputs = op.input_tensors
     binds = binds if binds else {}
-    tensors = list(inputs)
+    tensors = [x for x in inputs]
     for i in range(op.num_outputs):
         tensors.append(op.output(i))
 

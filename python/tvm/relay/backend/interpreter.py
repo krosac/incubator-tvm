@@ -20,15 +20,47 @@ from __future__ import absolute_import
 
 import numpy as np
 
-from tvm.runtime import container
-from tvm.ir import IRModule
-
 from . import _backend
 from .. import _make, analysis, transform
+from .. import module
 from ... import nd
 from ..base import Object, register_relay_node
 from ..expr import Tuple, RefCreate, Call, Constant, GlobalVar, Function, const
 from ..scope_builder import ScopeBuilder
+
+@register_relay_node
+class TupleValue(Object):
+    """A tuple value produced by the interpreter."""
+    def __init__(self, *fields):
+        self.__init_handle_by_constructor__(
+            _make.TupleValue, fields)
+
+    def __getitem__(self, field_no):
+        return self.fields[field_no]
+
+    def __len__(self):
+        return len(self.fields)
+
+    def __str__(self):
+        body = ','.join(str(f) for f in self.fields)
+        return '({0})'.format(body)
+
+    def __repr__(self):
+        body = ','.join(repr(f) for f in self.fields)
+        return '({0})'.format(body)
+
+    def __iter__(self):
+        return iter(self.fields)
+
+
+@register_relay_node
+class Closure(Object):
+    """A closure produced by the interpreter."""
+
+
+@register_relay_node
+class RecClosure(Object):
+    """A recursive closure produced by the interpreter."""
 
 
 @register_relay_node
@@ -48,8 +80,8 @@ class RefValue(Object):
 def _arg_to_ast(mod, arg):
     if isinstance(arg, nd.NDArray):
         return Constant(arg.copyto(nd.cpu(0)))
-    elif isinstance(arg, container.ADT):
-        return Tuple([_arg_to_ast(mod, field) for field in arg])
+    elif isinstance(arg, TupleValue):
+        return Tuple([_arg_to_ast(mod, field) for field in arg.fields])
     elif isinstance(arg, tuple):
         return Tuple([_arg_to_ast(mod, field) for field in arg])
     elif isinstance(arg, RefValue):
@@ -85,14 +117,14 @@ class Executor(object):
         expr: relay.Expr
             The expression to evaluate
 
-        args: List[tvm.nd.NDArray]
+        args: List[tvm.NDArray]
             The arguments to pass to the evaluator.
 
         kwargs: Dict[str, tvm.NDArrray]
             The keyword arguments to pass to the evaluator.
 
         Returns:
-            args: List[tvm.nd.NDArray]
+            args: List[tvm.NDArray]
                 The new arguments with all keyword arguments placed in the correct slot.
         """
         assert expr is not None
@@ -187,10 +219,10 @@ class Interpreter(Executor):
 
     Parameters
     ----------
-    mod : tvm.IRModule
+    mod : tvm.relay.Module
         The module to support the execution.
 
-    ctx : tvmContext
+    ctx : tvm.TVMContext
         The runtime context to run the code on.
 
     target : tvm.Target
@@ -206,7 +238,7 @@ class Interpreter(Executor):
 
         Returns
         -------
-        opt_mod : tvm.IRModule
+        opt_mod : tvm.relay.Module
             The optimized module.
         """
         seq = transform.Sequential([transform.SimplifyInference(),
@@ -240,7 +272,7 @@ class Interpreter(Executor):
                 if self.mod:
                     self.mod["main"] = func
                 else:
-                    self.mod = IRModule.from_expr(func)
+                    self.mod = module.Module.from_expr(func)
 
             mod = self.optimize()
             opt_expr = Call(mod["main"], relay_args)

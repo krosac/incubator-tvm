@@ -21,16 +21,15 @@
  * \file detect_linear_equation.cc
  * \brief Utility to detect patterns in the expression.
  */
-#include <tvm/tir/expr.h>
-#include <tvm/tir/ir_pass.h>
-#include <tvm/tir/expr_functor.h>
-#include <tvm/tir/stmt_functor.h>
+#include <tvm/expr.h>
+#include <tvm/ir_pass.h>
+#include <tvm/ir_functor_ext.h>
 #include <tvm/arith/analyzer.h>
 
 namespace tvm {
 namespace arith {
 
-using namespace tir;
+using namespace ir;
 
 // Linear equation, the components can be undefined.
 struct LinearEqEntry {
@@ -212,7 +211,7 @@ bool DetectClipBound(
   if (is_const_int(ret.coeff, 1)) {
     // var + shift >=0 -> var >= -shift
     if (p.min_value.defined()) {
-      p.min_value = tir::MaxNode::make(p.min_value, -ret.base);
+      p.min_value = ir::MaxNode::make(p.min_value, -ret.base);
     } else {
       p.min_value = -ret.base;
     }
@@ -221,7 +220,7 @@ bool DetectClipBound(
   if (is_const_int(ret.coeff, -1)) {
     // -var + shift >=0 -> var <= shift
     if (p.max_value.defined()) {
-      p.max_value = tir::MinNode::make(p.max_value, ret.base);
+      p.max_value = ir::MinNode::make(p.max_value, ret.base);
     } else {
       p.max_value = ret.base;
     }
@@ -245,7 +244,7 @@ void SplitCommExpr(const PrimExpr& e, std::vector<PrimExpr>* ret) {
 // e must be connected by and.
 Array<PrimExpr> DetectClipBound(const PrimExpr& e, const Array<Var>& vars) {
   std::vector<PrimExpr> splits;
-  SplitCommExpr<tir::AndNode>(e, &splits);
+  SplitCommExpr<ir::AndNode>(e, &splits);
   std::unordered_map<const VarNode*, IntervalEntry> rmap;
   for (Var v : vars) {
     rmap[v.get()] = IntervalEntry();

@@ -16,7 +16,6 @@
 # specific language governing permissions and limitations
 # under the License.
 # pylint: disable=import-self, invalid-name, unused-argument, too-many-lines, len-as-condition, broad-except
-# pylint: disable=import-outside-toplevel
 """TF: Tensorflow frontend."""
 from __future__ import absolute_import as _abs
 from __future__ import print_function
@@ -29,13 +28,13 @@ import numpy as np
 
 import tvm
 
-from tvm.ir import IRModule
 from tvm.relay.prelude import Prelude
 
 from .. import analysis
 from .. import expr as _expr
 from .. import op as _op
 from ..expr_functor import ExprMutator
+from .. import module as _module
 from .common import AttrCvt, get_relay_op
 from .common import infer_type as _infer_type
 from .common import infer_shape as _infer_shape
@@ -499,7 +498,7 @@ def _conv3d(opname):
             pad_v = _get_pad_pair(in_h, dilated_kernel_h, stride_h)
             pad_h = _get_pad_pair(in_w, dilated_kernel_w, stride_w)
 
-            attr['padding'] = [pad_d[0], pad_v[0], pad_h[0], pad_d[1], pad_v[1], pad_h[1]]
+            attr['padding'] = [pad_d[0], pad_v[0], pad_h[0], pad_v[0], pad_v[1], pad_h[1]]
 
         else:
             msg = 'Value {} in attribute "padding" of operator Conv is not ' \
@@ -510,7 +509,7 @@ def _conv3d(opname):
             attr['kernel_layout'] = 'DHWIO' if attr['data_format'] == 'NDHWC' else 'OIDHW'
 
         use_bias = len(inputs) == (3 if opname != 'conv_transpose' else 4)
-        channel_axis = 1 if attr['data_format'] == "NCDHW" else 4
+        channel_axis = 1 if attr['data_format'] == "NCDHW" else 3
 
         # Ignore the new attributes from TF2.0, for now.
         out = AttrCvt(
@@ -790,7 +789,7 @@ def _slice():
         end = size
         for i in range(data_dim):
             if size[i] == -1:
-                end[i] = data_shape[i]
+                end[i] = data_shape[i] - begin[i]
             else:
                 end[i] += begin[i]
         return _op.strided_slice(inputs[0], begin=begin, end=end)
@@ -2136,7 +2135,7 @@ class GraphProto(object):
         self._input_shapes = {}
         self._loops = {}
         self._branches = {}
-        self._mod = IRModule({})
+        self._mod = _module.Module({})
         self._prelude = Prelude(self._mod)
 
     def from_tensorflow(self, graph, layout="NHWC", shape=None, outputs=None):
@@ -2171,7 +2170,7 @@ class GraphProto(object):
 
         Returns
         -------
-        mod : tvm.IRModule
+        mod : tvm.relay.Module
             The module that optimizations will be performed on.
 
         params : dict
@@ -2653,11 +2652,11 @@ def from_tensorflow(graph, layout="NHWC", shape=None, outputs=None):
 
     Returns
     -------
-    mod : tvm.IRModule
+    mod : tvm.relay.Module
         The module that optimizations will be performed on.
 
-    params : dict of str to tvm.nd.NDArray
-        Dict of converted parameters stored in tvm.nd.NDArray format
+    params : dict of str to tvm.ndarray
+        Dict of converted parameters stored in tvm.ndarray format
     """
     g = GraphProto()
     mod, params = g.from_tensorflow(graph, layout, shape, outputs)

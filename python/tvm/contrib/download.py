@@ -15,6 +15,9 @@
 # specific language governing permissions and limitations
 # under the License.
 """Helper utility for downloading"""
+from __future__ import print_function
+from __future__ import absolute_import as _abs
+
 import os
 import sys
 import time
@@ -45,8 +48,10 @@ def download(url, path, overwrite=False, size_compare=False, verbose=1, retries=
     retries: int, optional
         Number of time to retry download, default at 3.
     """
-    # pylint: disable=import-outside-toplevel
-    import urllib.request as urllib2
+    if sys.version_info >= (3,):
+        import urllib.request as urllib2
+    else:
+        import urllib2
 
     if os.path.isfile(path) and not overwrite:
         if size_compare:
@@ -109,8 +114,9 @@ def download(url, path, overwrite=False, size_compare=False, verbose=1, retries=
                 if os.path.exists(tempfile):
                     os.remove(tempfile)
                 raise err
-            print("download failed due to {}, retrying, {} attempt{} left"
-                  .format(repr(err), retries, 's' if retries > 1 else ''))
+            else:
+                print("download failed due to {}, retrying, {} attempt{} left"
+                      .format(repr(err), retries, 's' if retries > 1 else ''))
 
 
 if "TEST_DATA_ROOT_PATH" in os.environ:

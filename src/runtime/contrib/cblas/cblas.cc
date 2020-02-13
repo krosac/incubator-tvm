@@ -22,7 +22,7 @@
  */
 #include <dmlc/logging.h>
 #include <tvm/runtime/registry.h>
-#include <tvm/runtime/data_type.h>
+#include <tvm/runtime/util.h>
 #include "gemm_common.h"
 
 extern "C" {

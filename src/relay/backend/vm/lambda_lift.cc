@@ -44,7 +44,7 @@ inline std::string GenerateName(const Function& func) {
 
 bool IsClosure(const Function& func) {
   ObjectRef res = FunctionGetAttr(func, attr::kClosure);
-  const tir::IntImmNode* pval = res.as<tir::IntImmNode>();
+  const ir::IntImmNode* pval = res.as<ir::IntImmNode>();
   return pval && pval->value != 0;
 }
 

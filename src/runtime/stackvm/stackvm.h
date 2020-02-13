@@ -38,7 +38,6 @@ namespace tvm {
 namespace runtime {
 
 using runtime::operator<<;
-
 /*!
  * \brief A simple stack-based virtual machine program.
  */
@@ -283,25 +282,6 @@ class StackVM {
      * \endcode
      */
     TVM_STRUCT_SET
-  };
-  /*! \brief The kind of structure field info */
-  enum StructFieldKind : int {
-    // array head address
-    kArrAddr,
-    kArrData,
-    kArrShape,
-    kArrStrides,
-    kArrNDim,
-    kArrTypeCode,
-    kArrTypeBits,
-    kArrTypeLanes,
-    kArrByteOffset,
-    kArrDeviceId,
-    kArrDeviceType,
-    kArrKindBound_,
-    // TVMValue field
-    kTVMValueContent,
-    kTVMValueKindBound_
   };
   /*! \brief The code structure */
   union Code {

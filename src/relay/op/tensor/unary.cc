@@ -34,9 +34,9 @@ namespace relay {
 
 #define RELAY_UNARY_COMPUTE(FTOPI)                      \
   [] (const Attrs& attrs,                               \
-      const Array<te::Tensor>& inputs,                      \
+      const Array<top::Tensor>& inputs,                      \
       const Type& out_type,                             \
-      const Target& target) -> Array<te::Tensor> {          \
+      const Target& target) -> Array<top::Tensor> {          \
     return {FTOPI(inputs[0])};                          \
   }                                                     \
 
@@ -266,22 +266,11 @@ RELAY_REGISTER_UNARY_OP("logical_not")
 .describe(R"code(Returns the logical inverse of input array, computed element-wise.
 
 .. math::
-   !(x)
-
-)code" TVM_ADD_FILELINE)
-.set_support_level(4)
-.set_attr<FTVMCompute>("FTVMCompute", RELAY_UNARY_COMPUTE(topi::logical_not));
-
-
-RELAY_REGISTER_UNARY_OP("bitwise_not")
-.describe(R"code(Returns the bitwise inverse of input array, computed element-wise.
-
-.. math::
    ~(x)
 
 )code" TVM_ADD_FILELINE)
 .set_support_level(4)
-.set_attr<FTVMCompute>("FTVMCompute", RELAY_UNARY_COMPUTE(topi::bitwise_not));
+.set_attr<FTVMCompute>("FTVMCompute", RELAY_UNARY_COMPUTE(topi::logical_not));
 
 
 // shape_of
@@ -297,12 +286,12 @@ bool ShapeOfRel(const Array<Type>& types,
   const auto* param = attrs.as<ShapeOfAttrs>();
   CHECK(param != nullptr);
   auto rank_shape = RankShape(tt->shape);
-  reporter->Assign(types[1], TensorType(rank_shape, param->dtype));
+  reporter->Assign(types[1], TensorTypeNode::make(rank_shape, param->dtype));
   return true;
 }
 
-Array<te::Tensor> ShapeOfCompute(const Attrs& attrs,
-                             const Array<te::Tensor>& inputs,
+Array<top::Tensor> ShapeOfCompute(const Attrs& attrs,
+                             const Array<top::Tensor>& inputs,
                              const Type& out_type,
                              const Target& target) {
   CHECK_EQ(inputs.size(), 1);
@@ -348,18 +337,18 @@ bool NdarraySizeRel(const Array<Type>& types,
   CHECK(tt != nullptr);
   const auto* param = attrs.as<NdarraySizeAttrs>();
   CHECK(param != nullptr);
-  reporter->Assign(types[1], TensorType({1}, param->dtype));
+  reporter->Assign(types[1], TensorTypeNode::make({1}, param->dtype));
   return true;
 }
 
-Array<te::Tensor> NdarraySizeCompute(const Attrs& attrs,
-                          const Array<te::Tensor>& inputs,
+Array<top::Tensor> NdarraySizeCompute(const Attrs& attrs,
+                          const Array<top::Tensor>& inputs,
                           const Type& out_type,
                           const Target& target) {
   CHECK_EQ(inputs.size(), 1);
   const auto* param = attrs.as<NdarraySizeAttrs>();
   CHECK(param != nullptr);
-  return Array<te::Tensor>{topi::ndarray_size(inputs[0], param->dtype)};
+  return Array<top::Tensor>{topi::ndarray_size(inputs[0], param->dtype)};
 }
 
 TVM_REGISTER_GLOBAL("relay.op.contrib._make.ndarray_size")

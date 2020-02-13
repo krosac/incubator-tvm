@@ -298,12 +298,13 @@ void MakeNode(const TVMArgs& args, TVMRetValue* rv) {
 }
 
 
-TVM_REGISTER_GLOBAL("node.NodeGetAttr")
+TVM_REGISTER_GLOBAL("_NodeGetAttr")
 .set_body(NodeGetAttr);
 
-TVM_REGISTER_GLOBAL("node.NodeListAttrNames")
+TVM_REGISTER_GLOBAL("_NodeListAttrNames")
 .set_body(NodeListAttrNames);
 
 TVM_REGISTER_GLOBAL("make._Node")
 .set_body(MakeNode);
+
 }  // namespace tvm

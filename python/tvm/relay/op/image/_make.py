@@ -15,6 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 """Constructor APIs"""
-import tvm._ffi
+from ...._ffi.function import _init_api
 
-tvm._ffi._init_api("relay.op.image._make", __name__)
+_init_api("relay.op.image._make", __name__)

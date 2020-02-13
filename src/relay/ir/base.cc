@@ -24,6 +24,7 @@
 
 #include <tvm/ir/type.h>
 #include <tvm/runtime/registry.h>
+#include <tvm/packed_func_ext.h>
 #include <tvm/relay/base.h>
 
 namespace tvm {
@@ -33,7 +34,7 @@ using namespace tvm::runtime;
 
 TVM_REGISTER_NODE_TYPE(IdNode);
 
-TVM_REGISTER_GLOBAL("ir.NodeSetSpan")
+TVM_REGISTER_GLOBAL("relay._base.set_span")
 .set_body_typed([](ObjectRef node_ref, Span sp) {
   if (auto* rn = node_ref.as<RelayNode>()) {
     rn->span = sp;

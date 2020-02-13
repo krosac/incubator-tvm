@@ -208,7 +208,6 @@ def measure_option(builder, runner):
     Using `min_repeat_ms` can dynamically adjusts `number`, so it is recommended.
     The typical value for NVIDIA GPU is 150 ms.
     """
-    # pylint: disable=import-outside-toplevel
     from .measure_methods import LocalBuilder, LocalRunner
 
     if isinstance(builder, str):

@@ -15,9 +15,10 @@
 # specific language governing permissions and limitations
 # under the License.
 """Arithmetic data structure and utility"""
-import tvm._ffi
-from tvm.runtime import Object
+from __future__ import absolute_import as _abs
 
+from ._ffi.object import Object, register_object
+from ._ffi.function import _init_api
 from . import _api_internal
 
 class IntSet(Object):
@@ -31,7 +32,7 @@ class IntSet(Object):
         return _api_internal._IntSetIsEverything(self)
 
 
-@tvm._ffi.register_object("arith.IntervalSet")
+@register_object("arith.IntervalSet")
 class IntervalSet(IntSet):
     """Represent set of continuous interval [min_value, max_value]
 
@@ -48,7 +49,7 @@ class IntervalSet(IntSet):
             _make_IntervalSet, min_value, max_value)
 
 
-@tvm._ffi.register_object("arith.ModularSet")
+@register_object("arith.ModularSet")
 class ModularSet(Object):
     """Represent range of (coeff * x + base) for x in Z """
     def __init__(self, coeff, base):
@@ -56,7 +57,7 @@ class ModularSet(Object):
             _make_ModularSet, coeff, base)
 
 
-@tvm._ffi.register_object("arith.ConstIntBound")
+@register_object("arith.ConstIntBound")
 class ConstIntBound(Object):
     """Represent constant integer bound
 
@@ -257,4 +258,4 @@ class Analyzer:
                 "Do not know how to handle type {}".format(type(info)))
 
 
-tvm._ffi._init_api("tvm.arith")
+_init_api("tvm.arith")

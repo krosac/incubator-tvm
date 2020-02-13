@@ -27,9 +27,8 @@
 #ifndef TVM_RELAY_PASS_INFER_LAYOUT_UTIL_H_
 #define TVM_RELAY_PASS_INFER_LAYOUT_UTIL_H_
 
-#include <tvm/tir/data_layout.h>
+#include <tvm/data_layout.h>
 #include <tvm/relay/expr.h>
-#include <tvm/relay/op_attr_types.h>
 #include <string>
 #include <tuple>
 #include "pattern_util.h"

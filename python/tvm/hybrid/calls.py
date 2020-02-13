@@ -16,11 +16,12 @@
 # under the License.
 """Intrinsics of TVM-Python Hybrid Script for Python compilation time
 semantic support."""
-from tvm.ir.container import Array
+
 from .. import api as _api
 from .. import expr as _expr
 from .. import make as _make
 from .. import target as _tgt
+from ..container import Array
 from .. import ir_pass
 from ..stmt import For
 from .util import _internal_assert
@@ -68,7 +69,6 @@ def bind(func_id, args):
 
 
 def _math_intrin(func_id, args):
-    # pylint: disable=import-outside-toplevel
     from .. import intrin
     return getattr(intrin, func_id)(*args)
 
@@ -154,8 +154,8 @@ def max_num_threads(func_id, args):
     _internal_assert(func_id == "max_num_threads", "This function cannot be directly invoked!")
     _internal_assert(args.__len__() <= 1, "At most one argument accepted!")
     if args.__len__() == 0:
-        res = _tgt.Target.current().max_num_threads
+        res = _tgt.current_target().max_num_threads
     else:
         _internal_assert(isinstance(args[0], _expr.IntImm), "In tvm bool should be uint")
-        res = _tgt.Target.current(args[0].value).max_num_threads
+        res = _tgt.current_target(args[0].value).max_num_threads
     return _api.convert(res)

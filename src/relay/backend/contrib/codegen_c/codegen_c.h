@@ -38,7 +38,6 @@ namespace contrib {
 class CSourceModuleCodegenBase {
  public:
   CSourceModuleCodegenBase() = default;
-  virtual ~CSourceModuleCodegenBase() = default;
 
   /*!
    * \brief Create a runtime module for the external library. For example, it
@@ -61,7 +60,7 @@ class CSourceModuleCodegenBase {
    */
   std::string GetExtSymbol(const Function& func) const {
     const auto name_node =
-      FunctionGetAttr(func, attr::kExternalSymbol).as<tvm::tir::StringImmNode>();
+      FunctionGetAttr(func, attr::kExternalSymbol).as<tvm::ir::StringImmNode>();
     CHECK(name_node != nullptr) << "Fail to retrieve external symbol.";
     std::string ext_symbol = name_node->value;
     return ext_symbol;
@@ -70,9 +69,6 @@ class CSourceModuleCodegenBase {
 
 // The base class to generate the declaration functions in C.
 class CodegenCBase {
- public:
-  virtual ~CodegenCBase() {}
-
  protected:
   /*! \brief Print indents using spaces. */
   void PrintIndents() {

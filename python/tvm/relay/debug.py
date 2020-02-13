@@ -20,7 +20,7 @@ from __future__ import absolute_import
 from ..api import register_func
 
 
-# pylint: disable=unused-argument, import-outside-toplevel
+# pylint: disable=unused-argument
 def _debugger_init(expr, stack):
     import pdb
     pdb.set_trace()

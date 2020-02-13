@@ -16,7 +16,7 @@
 # under the License.
 """The attributes node used for Relay operators"""
 
-from tvm.ir import Attrs
+from ...attrs import Attrs
 from ..base import register_relay_attr_node
 
 

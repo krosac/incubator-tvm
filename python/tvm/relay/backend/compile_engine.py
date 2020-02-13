@@ -86,7 +86,7 @@ class CompileEngine(Object):
         cached_func: CachedFunc
             The result of lowering.
         """
-        # pylint: disable=broad-except, import-outside-toplevel
+        # pylint: disable=broad-except
         try:
             key = _get_cache_key(source_func, target)
             return _backend._CompileEngineLower(self, key)
@@ -104,7 +104,7 @@ class CompileEngine(Object):
         return _backend._CompileEngineLowerShapeFunc(self, key)
 
     def jit(self, source_func, target=None):
-        """JIT a source_func to a tvm.runtime.PackedFunc.
+        """JIT a source_func to a tvm.Function.
 
         Parameters
         ----------
@@ -116,7 +116,7 @@ class CompileEngine(Object):
 
         Returns
         -------
-        jited_func: tvm.runtime.PackedFunc
+        jited_func: tvm.Function
             The result of jited function.
         """
         key = _get_cache_key(source_func, target)

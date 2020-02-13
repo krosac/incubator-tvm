@@ -16,7 +16,9 @@
 # under the License.
 #pylint: disable=unused-argument,inconsistent-return-statements
 """Internal module for registering attribute for annotation."""
-import tvm
+from __future__ import absolute_import
+
+from ... import target as _target
 from .. import expr as _expr
 from .. import analysis as _analysis
 from ..base import register_relay_node
@@ -86,7 +88,7 @@ def add_partition_generic(ref_call, new_args, ctx):
         lhs = new_args[0].realize()
         rhs = new_args[1].realize()
         return _forward_op(ref_call, [lhs, rhs])
-    if not lhs_cond and rhs_cond:
+    elif not lhs_cond and rhs_cond:
         # - introduced by residual connection in ResNet
         #     ...
         #     %13 = nn.conv2d(%12, %meta[relay.Constant])
@@ -102,7 +104,7 @@ def add_partition_generic(ref_call, new_args, ctx):
         #     ...
         rhs = new_args[1].realize()
         return _forward_op(ref_call, [lhs, rhs])
-    if lhs_cond and not rhs_cond:
+    elif lhs_cond and not rhs_cond:
         if _analysis.check_constant(rhs):
             # - introduced by batch_norm: add(out, bias)
             return QPartitionExpr(_forward_op(ref_call, [lhs, rhs]))
@@ -119,11 +121,11 @@ def add_partition_generic(ref_call, new_args, ctx):
         #     ...
         lhs = new_args[0].realize()
         return _forward_op(ref_call, [lhs, rhs])
-    if not lhs_cond and not rhs_cond:
+    elif not lhs_cond and not rhs_cond:
         # trivial case
         return None
-
-    raise ValueError
+    else:
+        raise ValueError
 
 
 # TODO(ziheng) enhance `register_partition_function` to dispatch
@@ -131,7 +133,7 @@ def add_partition_generic(ref_call, new_args, ctx):
 @register_partition_function("add")
 def add_partition_function(ref_call, new_args, ctx):
     """Rewrite function for ewise add for partition"""
-    target = tvm.target.Target.current()
+    target = _target.current_target()
     if target and 'cuda' in target.keys:
         #TODO(wuwei/ziheng) cuda specific rules
         return add_partition_generic(ref_call, new_args, ctx)

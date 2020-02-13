@@ -22,7 +22,7 @@
  * \brief Code generation for TVM's graph runtime.
  */
 #include <tvm/relay/analysis.h>
-#include <tvm/driver/driver_api.h>
+#include <tvm/build_module.h>
 #include <tvm/runtime/device_api.h>
 #include <tvm/runtime/vm.h>
 #include <tvm/relay/expr.h>
@@ -35,8 +35,6 @@
 namespace tvm {
 namespace relay {
 namespace backend {
-
-using tir::LoweredFunc;
 
 using TargetsMap = Map<tvm::Integer, tvm::Target>;
 using namespace tvm::relay::transform;
@@ -87,7 +85,7 @@ struct GraphCodegen {
     std::unordered_map<std::string, tvm::runtime::NDArray> ret;
     auto names = CallFunc<Array<tvm::PrimExpr> >("list_params_name", nullptr);
     for (auto expr : names) {
-      auto key = expr.as<tir::StringImmNode>()->value;
+      auto key = expr.as<ir::StringImmNode>()->value;
       ret[key] = CallFunc<runtime::NDArray>("get_param_by_name", key);
     }
     return ret;
@@ -195,7 +193,7 @@ class RelayBuildModule : public runtime::ModuleNode {
   Array<tvm::PrimExpr> ListParamNames() {
     Array<tvm::PrimExpr> ret;
     for (const auto& kv : params_) {
-      ret.push_back(tir::StringImmNode::make(kv.first));
+      ret.push_back(ir::StringImmNode::make(kv.first));
     }
     return ret;
   }
@@ -249,6 +247,45 @@ class RelayBuildModule : public runtime::ModuleNode {
 
  protected:
   /*!
+   * \brief Bind params to function by using name
+   * \param func Relay function
+   * \param params params dict
+   * \return relay::Function
+   */
+  relay::Function BindParamsByName(
+      relay::Function func,
+      const std::unordered_map<std::string, runtime::NDArray>& params) {
+    std::unordered_map<std::string, relay::Var> name_dict;
+    std::unordered_set<relay::Var, ObjectHash, ObjectEqual> repeat_var;
+    for (auto arg : func->params) {
+      const auto &name = arg->name_hint();
+      if (name_dict.count(name)) {
+        repeat_var.insert(arg);
+      } else {
+        name_dict[name] = arg;
+      }
+    }
+
+    std::unordered_map<relay::Var, Expr, ObjectHash, ObjectEqual> bind_dict;
+    for (auto &kv : params) {
+      if (name_dict.count(kv.first) == 0) {
+        continue;
+      }
+      auto arg = name_dict.at(kv.first);
+      if (repeat_var.count(arg)) {
+        LOG(FATAL) << "Multiple args in the function have name " << kv.first;
+      }
+      bind_dict[arg] = ConstantNode::make(kv.second);
+    }
+    Expr bound_expr = relay::Bind(func, bind_dict);
+    Function ret = Downcast<Function>(bound_expr);
+    CHECK(ret.defined())
+        << "The returning type is expected to be a Relay Function."
+        << "\n";
+    return ret;
+  }
+
+  /*!
    * \brief Optimize a Relay Function.
    *
    * \param func The input Function where optmization will be applied on.
@@ -297,13 +334,14 @@ class RelayBuildModule : public runtime::ModuleNode {
     pass_seqs.push_back(transform::CombineParallelConv2D(3));
     pass_seqs.push_back(transform::CombineParallelDense(3));
     pass_seqs.push_back(transform::FoldConstant());
-    pass_seqs.push_back(transform::FoldScaleAxis());
+    //pass_seqs.push_back(transform::FoldScaleAxis());
     pass_seqs.push_back(transform::CanonicalizeCast());
     pass_seqs.push_back(transform::CanonicalizeOps());
+    //pass_seqs.push_back(transform::AmorphGraph());
 
     // Alter layout transformation is only applied to homogeneous execution yet.
     if (targets.size() == 1) {
-      pass_seqs.push_back(transform::AlterOpLayout());
+      //pass_seqs.push_back(transform::AlterOpLayout());
     }
     pass_seqs.push_back(transform::FoldConstant());
 
@@ -325,7 +363,7 @@ class RelayBuildModule : public runtime::ModuleNode {
     }
 
     // Fuse the operations if it is needed.
-    relay_module = transform::FuseOps()(relay_module);
+    relay_module = transform::FuseOps(0)(relay_module);
     relay_module = transform::InferType()(relay_module);
     CHECK(relay_module.defined());
 
@@ -481,16 +519,6 @@ runtime::Module RelayBuildCreate() {
 TVM_REGISTER_GLOBAL("relay.build_module._BuildModule")
 .set_body([](TVMArgs args, TVMRetValue* rv) {
   *rv = RelayBuildCreate();
-});
-
-TVM_REGISTER_GLOBAL("relay.build_module.BindParamsByName")
-.set_body([](TVMArgs args, TVMRetValue* rv) {
-  Map<std::string, Constant> params = args[1];
-  std::unordered_map<std::string, runtime::NDArray> params_;
-  for (const auto& kv : params) {
-    params_[kv.first] = kv.second->data;
-  }
-  *rv = relay::backend::BindParamsByName(args[0], params_);
 });
 
 }  // namespace backend

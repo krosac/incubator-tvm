@@ -126,8 +126,6 @@ class BranchGroupFinder : private ExprVisitor {
  */
 class ParallelOpCombiner {
  public:
-  /*! \brief virtual destructor */
-  virtual ~ParallelOpCombiner() {}
   /*
    * \brief Constructor.
    * \param op_name name of op to combine

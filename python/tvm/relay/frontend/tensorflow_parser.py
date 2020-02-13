@@ -15,8 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 """TF: Tensorflow parser"""
-# pylint: disable=import-outside-toplevel, assignment-from-no-return
-
+from __future__ import absolute_import as _abs
+from __future__ import print_function
 import os
 from tvm.contrib import util
 

@@ -84,7 +84,7 @@ def get_workload(batch_size,
 
     Returns
     -------
-    mod : tvm.IRModule
+    mod : tvm.relay.Module
         The relay module that contains a mlp network.
 
     params : dict of str to NDArray

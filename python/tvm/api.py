@@ -16,22 +16,24 @@
 # under the License.
 """Functions defined in TVM."""
 # pylint: disable=invalid-name,unused-import,redefined-builtin
+from __future__ import absolute_import as _abs
+
 from numbers import Integral as _Integral
 
-import tvm._ffi
-import tvm.ir
-
-from tvm.runtime import convert, const, DataType
-from tvm.ir import container as _container
-
-from ._ffi.base import string_types, TVMError
-from ._ffi.registry import register_func, get_global_func, extract_ext_funcs
-
+from ._ffi.base import string_types
+from ._ffi.object import register_object, Object
+from ._ffi.object import convert_to_object as _convert_to_object
+from ._ffi.object_generic import _scalar_type_inference
+from ._ffi.function import Function
+from ._ffi.function import _init_api, register_func, get_global_func, extract_ext_funcs
+from ._ffi.function import convert_to_tvm_func as _convert_tvm_func
+from ._ffi.runtime_ctypes import TVMType
 from . import _api_internal
 from . import make as _make
 from . import expr as _expr
 from . import tensor as _tensor
 from . import schedule as _schedule
+from . import container as _container
 from . import tag as _tag
 
 int8 = "int8"
@@ -70,6 +72,106 @@ def max_value(dtype):
         The maximum value of dtype.
     """
     return _api_internal._max_value(dtype)
+
+
+def const(value, dtype=None):
+    """construct a constant
+
+    Parameters
+    ----------
+    value : number
+        The content of the constant number.
+
+    dtype : str or None, optional
+        The data type.
+
+    Returns
+    -------
+    const_val: tvm.Expr
+        The result expression.
+    """
+    if dtype is None:
+        dtype = _scalar_type_inference(value)
+    if dtype == "uint64" and value >= (1 << 63):
+        return _api_internal._LargeUIntImm(
+            dtype, value & ((1 << 32) - 1), value >> 32)
+    return _api_internal._const(value, dtype)
+
+
+def get_env_func(name):
+    """Get an EnvFunc by a global name.
+
+    Parameters
+    ----------
+    name: str
+        The name of the global function.
+
+    Returns
+    -------
+    env_func : EnvFunc
+        The result env function.
+
+    Note
+    ----
+    EnvFunc is a Object wrapper around
+    global function that can be serialized via its name.
+    This can be used to serialize function field in the language.
+    """
+    return _api_internal._EnvFuncGet(name)
+
+
+def convert(value):
+    """Convert value to TVM node or function.
+
+    Parameters
+    ----------
+    value : python value
+
+    Returns
+    -------
+    tvm_val : Object or Function
+        Converted value in TVM
+    """
+    if isinstance(value, (Function, Object)):
+        return value
+
+    if callable(value):
+        return _convert_tvm_func(value)
+
+    return _convert_to_object(value)
+
+
+def load_json(json_str):
+    """Load tvm object from json_str.
+
+    Parameters
+    ----------
+    json_str : str
+        The json string
+
+    Returns
+    -------
+    node : Object
+        The loaded tvm node.
+    """
+    return _api_internal._load_json(json_str)
+
+
+def save_json(node):
+    """Save tvm object as json string.
+
+    Parameters
+    ----------
+    node : Object
+        A TVM object to be saved.
+
+    Returns
+    -------
+    json_str : str
+        Saved json string.
+    """
+    return _api_internal._save_json(node)
+
 
 def var(name="tindex", dtype=int32):
     """Create a new variable with specified name and dtype
@@ -628,7 +730,7 @@ def _IterVar(dom, name, iter_type, thread_tag=''):
                 raise TypeError("need to be list of ranges")
             dom = Range(dom[0], dom[1])
 
-        if not isinstance(dom, tvm.ir.Range):
+        if not isinstance(dom, _container.Range):
             raise TypeError("dom need to be Range")
     name = name if name else 'iter'
     v = var(name)
@@ -965,9 +1067,10 @@ def floormod(a, b):
     """
     return _make._OpFloorMod(a, b)
 
+
+_init_api("tvm.api")
+
 #pylint: disable=unnecessary-lambda
 sum = comm_reducer(lambda x, y: x+y, lambda t: const(0, dtype=t), name="sum")
 min = comm_reducer(lambda x, y: _make._OpMin(x, y), max_value, name='min')
 max = comm_reducer(lambda x, y: _make._OpMax(x, y), min_value, name='max')
-
-tvm._ffi._init_api("tvm.api")

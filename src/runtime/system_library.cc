@@ -68,12 +68,12 @@ class SystemLibrary : public Library {
   std::unordered_map<std::string, void*> tbl_;
 };
 
-TVM_REGISTER_GLOBAL("runtime.SystemLib")
-.set_body_typed([]() {
+TVM_REGISTER_GLOBAL("module._GetSystemLib")
+.set_body([](TVMArgs args, TVMRetValue* rv) {
     static auto mod = CreateModuleFromLibrary(
         SystemLibrary::Global());
-    return mod;
-});
+    *rv = mod;
+  });
 }  // namespace runtime
 }  // namespace tvm
 

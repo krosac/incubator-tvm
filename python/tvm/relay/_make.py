@@ -20,6 +20,6 @@ The constructors for all Relay AST nodes exposed from C++.
 This module includes MyPy type signatures for all of the
 exposed modules.
 """
-import tvm._ffi
+from .._ffi.function import _init_api
 
-tvm._ffi._init_api("relay._make", __name__)
+_init_api("relay._make", __name__)

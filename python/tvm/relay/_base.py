@@ -16,6 +16,6 @@
 # under the License.
 # pylint: disable=no-else-return, unidiomatic-typecheck, undefined-variable
 """The interface of expr function exposed from C++."""
-import tvm._ffi
+from tvm._ffi.function import _init_api
 
-tvm._ffi._init_api("relay._base", __name__)
+_init_api("relay._base", __name__)

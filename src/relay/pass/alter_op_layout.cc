@@ -28,7 +28,7 @@
 #include <tvm/relay/op_attr_types.h>
 #include <tvm/relay/attrs/transform.h>
 #include <tvm/relay/transform.h>
-#include <tvm/te/operation.h>
+#include <tvm/top/operation.h>
 #include <tuple>
 #include <vector>
 #include <functional>
@@ -78,10 +78,10 @@ class AlterTransformMemorizer : public TransformMemorizer {
     Expr new_e;
     bool modified = false;
     if (falter_layout.count(op)) {
-      tvm::Array<tvm::te::Tensor> tinfos;
+      tvm::Array<tvm::top::Tensor> tinfos;
       for (auto expr : ref_call->args) {
         auto ttype = expr->type_as<TensorTypeNode>();
-        tinfos.push_back(tvm::te::placeholder(ttype->shape, ttype->dtype));
+        tinfos.push_back(tvm::top::placeholder(ttype->shape, ttype->dtype));
       }
       Expr altered_value = falter_layout[op](ref_call->attrs, new_args, tinfos);
       if (altered_value.defined()) {
@@ -123,7 +123,7 @@ Pass AlterOpLayout() {
       return Downcast<Function>(relay::alter_op_layout::AlterOpLayout(f));
   };
   return CreateFunctionPass(pass_func, 3, "AlterOpLayout",
-                            {tir::StringImmNode::make("InferType")});
+                            {ir::StringImmNode::make("InferType")});
 }
 
 TVM_REGISTER_GLOBAL("relay._transform.AlterOpLayout")

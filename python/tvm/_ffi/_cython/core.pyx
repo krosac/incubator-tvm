@@ -17,5 +17,7 @@
 
 include "./base.pxi"
 include "./object.pxi"
-include "./packed_func.pxi"
+# include "./node.pxi"
+include "./function.pxi"
 include "./ndarray.pxi"
+

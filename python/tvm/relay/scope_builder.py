@@ -18,7 +18,6 @@
 """The scope builder interface."""
 from __future__ import absolute_import
 
-from . import ty as _ty
 from . import expr as _expr
 from .._ffi import base as _base
 
@@ -41,7 +40,8 @@ class WithScope(object):
     def __exit__(self, ptype, value, trace):
         if value:
             raise value
-        self._exit_cb()
+        else:
+            self._exit_cb()
 
 def _make_lets(bindings, ret_value):
     """Make a nested let expressions.

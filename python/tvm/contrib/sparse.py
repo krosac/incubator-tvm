@@ -16,13 +16,12 @@
 # under the License.
 """Tensor and Operation class for computation declaration."""
 # pylint: disable=invalid-name
+from __future__ import absolute_import as _abs
 import numpy as _np
-from tvm.runtime import ndarray as _nd
-
 from .. import expr as _expr
 from .. import api as _api
 from .. import tensor as _tensor
-
+from .. import ndarray as _nd
 
 float32 = "float32"
 itype = 'int32'
@@ -38,7 +37,7 @@ class CSRNDArray(object):
             The corresponding a dense numpy array,
             or a tuple for constructing a sparse matrix directly.
 
-        ctx: tvmContext
+        ctx: tvm.TVMContext
             The corresponding context.
 
         shape : tuple of int

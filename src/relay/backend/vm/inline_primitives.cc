@@ -87,22 +87,12 @@ struct PrimitiveInliner : ExprMutator {
 
     if (auto func = op.as<FunctionNode>()) {
       if (func->IsPrimitive()) {
-        tvm::Array<Expr> call_args;
-        for (auto arg : call->args) {
-          auto new_arg = VisitExpr(arg);
-          call_args.push_back(new_arg);
-        }
-        return CallNode::make(GetRef<Function>(func), call_args, call->attrs, call->type_args);
+        return CallNode::make(GetRef<Function>(func), call->args, call->attrs, call->type_args);
       }
     }
 
     if (auto global = op.as<GlobalVarNode>()) {
-      tvm::Array<Expr> call_args;
-      for (auto arg : call->args) {
-        auto new_arg = VisitExpr(arg);
-        call_args.push_back(new_arg);
-      }
-      return CallNode::make(GetRef<GlobalVar>(global), call_args, call->attrs, call->type_args);
+      return CallNode::make(GetRef<GlobalVar>(global), call->args, call->attrs, call->type_args);
     }
 
     return ExprMutator::VisitExpr_(call);

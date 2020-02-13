@@ -22,9 +22,10 @@
  * \brief The integer set functions
  */
 #include <tvm/arith/int_set.h>
-#include <tvm/tir/expr.h>
-#include <tvm/tir/expr_functor.h>
+#include <tvm/ir.h>
+#include <tvm/ir_functor_ext.h>
 #include <tvm/runtime/registry.h>
+#include <tvm/packed_func_ext.h>
 
 #include <utility>
 #include <algorithm>
@@ -34,11 +35,6 @@
 
 namespace tvm {
 namespace arith {
-
-using tir::make_const;
-using tir::make_zero;
-using tir::is_zero;
-using tir::is_one;
 
 PrimExpr SymbolicLimits::pos_inf_ = Var("pos_inf", DataType::Handle());
 PrimExpr SymbolicLimits::neg_inf_ = Var("neg_inf", DataType::Handle());
@@ -84,7 +80,7 @@ struct is_logical_op {
 
 #define TVM_DECLARE_LOGICAL_OP(OP)              \
   template<>                                    \
-  struct is_logical_op<tir::OP> {                \
+  struct is_logical_op<ir::OP> {                \
     static const bool value = true;             \
   };
 
@@ -123,7 +119,7 @@ inline IntervalSet Combine(Analyzer* analyzer,
 }
 
 template<>
-inline IntervalSet Combine<tir::AddNode>(Analyzer* analyer,
+inline IntervalSet Combine<ir::AddNode>(Analyzer* analyer,
                                         IntervalSet a,
                                         IntervalSet b) {
   if (a->IsSinglePoint() && b->IsSinglePoint()) {
@@ -141,7 +137,7 @@ inline IntervalSet Combine<tir::AddNode>(Analyzer* analyer,
 }
 
 template<>
-inline IntervalSet Combine<tir::SubNode>(Analyzer* analyer,
+inline IntervalSet Combine<ir::SubNode>(Analyzer* analyer,
                                         IntervalSet a,
                                         IntervalSet b) {
   if (a->IsSinglePoint() && b->IsSinglePoint()) {
@@ -160,7 +156,7 @@ inline IntervalSet Combine<tir::SubNode>(Analyzer* analyer,
 
 
 template<>
-inline IntervalSet Combine<tir::MulNode>(Analyzer* analyzer,
+inline IntervalSet Combine<ir::MulNode>(Analyzer* analyzer,
                                         IntervalSet a,
                                         IntervalSet b) {
   if (a->IsSinglePoint() && b->IsSinglePoint()) {
@@ -183,7 +179,7 @@ inline IntervalSet Combine<tir::MulNode>(Analyzer* analyzer,
       PrimExpr max_value = a->HasLowerBound() ? a->min_value * b->min_value : pos_inf();
       return IntervalSet(min_value, max_value);
     } else if (a->HasUpperBound() && a->HasLowerBound()) {
-      using tir::SelectNode;
+      using ir::SelectNode;
       PrimExpr sign = b->min_value >= make_zero(b->min_value.dtype().element_of());
       PrimExpr e1 = a->min_value * b->min_value;
       PrimExpr e2 = a->max_value * b->min_value;
@@ -195,7 +191,7 @@ inline IntervalSet Combine<tir::MulNode>(Analyzer* analyzer,
 }
 
 template<>
-inline IntervalSet Combine<tir::DivNode>(Analyzer* analyzer,
+inline IntervalSet Combine<ir::DivNode>(Analyzer* analyzer,
                                         IntervalSet a,
                                         IntervalSet b) {
   if (a->IsSinglePoint() && b->IsSinglePoint()) {
@@ -218,7 +214,7 @@ inline IntervalSet Combine<tir::DivNode>(Analyzer* analyzer,
       PrimExpr max_value = a->HasLowerBound() ? a->min_value / b->min_value : pos_inf();
       return IntervalSet(min_value, max_value);
     } else if (a->HasUpperBound() && a->HasLowerBound()) {
-      using tir::SelectNode;
+      using ir::SelectNode;
       PrimExpr sign = b->min_value >= make_zero(b->min_value.dtype().element_of());
       PrimExpr e1 = a->min_value / b->min_value;
       PrimExpr e2 = a->max_value / b->min_value;
@@ -230,7 +226,7 @@ inline IntervalSet Combine<tir::DivNode>(Analyzer* analyzer,
 }
 
 template<>
-inline IntervalSet Combine<tir::ModNode>(Analyzer* analyzer,
+inline IntervalSet Combine<ir::ModNode>(Analyzer* analyzer,
                                         IntervalSet a,
                                         IntervalSet b) {
   if (a->IsSinglePoint() && b->IsSinglePoint()) {
@@ -261,7 +257,7 @@ inline IntervalSet Combine<tir::ModNode>(Analyzer* analyzer,
 
 
 template<>
-inline IntervalSet Combine<tir::FloorDivNode>(Analyzer* analyzer,
+inline IntervalSet Combine<ir::FloorDivNode>(Analyzer* analyzer,
                                              IntervalSet a,
                                              IntervalSet b) {
   if (a->IsSinglePoint() && b->IsSinglePoint()) {
@@ -284,7 +280,7 @@ inline IntervalSet Combine<tir::FloorDivNode>(Analyzer* analyzer,
       PrimExpr max_value = a->HasLowerBound() ? floordiv(a->min_value, b->min_value) : pos_inf();
       return IntervalSet(min_value, max_value);
     } else if (a->HasUpperBound() && a->HasLowerBound()) {
-      using tir::SelectNode;
+      using ir::SelectNode;
       PrimExpr sign = b->min_value >= make_zero(b->min_value.dtype().element_of());
       PrimExpr e1 = floordiv(a->min_value, b->min_value);
       PrimExpr e2 = floordiv(a->max_value, b->min_value);
@@ -296,7 +292,7 @@ inline IntervalSet Combine<tir::FloorDivNode>(Analyzer* analyzer,
 }
 
 template<>
-inline IntervalSet Combine<tir::FloorModNode>(Analyzer* analyzer,
+inline IntervalSet Combine<ir::FloorModNode>(Analyzer* analyzer,
                                              IntervalSet a,
                                              IntervalSet b) {
   if (a->IsSinglePoint() && b->IsSinglePoint()) {
@@ -322,7 +318,7 @@ inline IntervalSet Combine<tir::FloorModNode>(Analyzer* analyzer,
 }
 
 template<>
-inline IntervalSet Combine<tir::MaxNode>(Analyzer* analzyer,
+inline IntervalSet Combine<ir::MaxNode>(Analyzer* analzyer,
                                         IntervalSet a,
                                         IntervalSet b) {
   if (a->IsSinglePoint() && b->IsSinglePoint()) {
@@ -335,7 +331,7 @@ inline IntervalSet Combine<tir::MaxNode>(Analyzer* analzyer,
 }
 
 template<>
-inline IntervalSet Combine<tir::MinNode>(Analyzer* analzyer,
+inline IntervalSet Combine<ir::MinNode>(Analyzer* analzyer,
                                         IntervalSet a,
                                         IntervalSet b) {
   if (a->IsSinglePoint() && b->IsSinglePoint()) {
@@ -356,7 +352,7 @@ IntervalSet ToIntervalSet(IntSet set) {
   return IntervalSet::Everything();
 }
 
-using namespace tir;
+using namespace ir;
 
 // Simplified version of int set evaluator that operates on IntervalSet
 // We might use better set analysis in the future to replace the intervalset.
@@ -608,17 +604,17 @@ bool IntSet::is_single_point() const {
 
 bool IntSet::can_prove_positive() const {
   const IntervalSetNode* s_int = (*this).as<IntervalSetNode>();
-  return (s_int && is_positive_const(tir::Simplify(s_int->min_value)));
+  return (s_int && is_positive_const(ir::Simplify(s_int->min_value)));
 }
 
 bool IntSet::can_prove_negative() const {
   const IntervalSetNode* s_int = (*this).as<IntervalSetNode>();
-  return (s_int && is_negative_const(tir::Simplify(s_int->max_value)));
+  return (s_int && is_negative_const(ir::Simplify(s_int->max_value)));
 }
 
 bool IntSet::can_prove_non_positive() const {
   if (const auto* s_int = (*this).as<IntervalSetNode>()) {
-    auto max = tir::Simplify(s_int->max_value);
+    auto max = ir::Simplify(s_int->max_value);
     return is_zero(max) || is_negative_const(max);
   }
   return false;
@@ -626,7 +622,7 @@ bool IntSet::can_prove_non_positive() const {
 
 bool IntSet::can_prove_non_negative() const {
   if (const IntervalSetNode* s_int = (*this).as<IntervalSetNode>()) {
-    auto min = tir::Simplify(s_int->min_value);
+    auto min = ir::Simplify(s_int->min_value);
     return is_zero(min) || is_positive_const(min);
   }
   return false;
@@ -670,7 +666,7 @@ IntSet IntSet::interval(PrimExpr min, PrimExpr max) {
 
 // Range related code
 inline bool ProveEqual(PrimExpr lhs, PrimExpr rhs) {
-  return is_zero(tir::Simplify(lhs - rhs));
+  return is_zero(ir::Simplify(lhs - rhs));
 }
 
 IntSet IntSet::range(Range r) {
@@ -697,8 +693,8 @@ IntSet Union(const Array<IntSet>& sets) {
   for (size_t i = 1; i < sets.size(); ++i) {
     x = Union(&ana, x, ToIntervalSet(sets[i]));
   }
-  return IntervalSet(tir::Simplify(x->min_value),
-                     tir::Simplify(x->max_value));
+  return IntervalSet(ir::Simplify(x->min_value),
+                     ir::Simplify(x->max_value));
 }
 
 IntSet Intersect(const Array<IntSet>& sets) {
@@ -709,8 +705,8 @@ IntSet Intersect(const Array<IntSet>& sets) {
   for (size_t i = 1; i < sets.size(); ++i) {
     x = Intersect(&ana, x, ToIntervalSet(sets[i]));
   }
-  return IntervalSet(tir::Simplify(x->min_value),
-                     tir::Simplify(x->max_value));
+  return IntervalSet(ir::Simplify(x->min_value),
+                     ir::Simplify(x->max_value));
 }
 
 Map<Var, IntSet> ConvertDomMap(const Map<IterVar, IntSet>& dom_map) {
@@ -813,8 +809,8 @@ IntSet EvalSet(Range r,
 
 TVM_REGISTER_NODE_TYPE(IntervalSetNode);
 
-TVM_STATIC_IR_FUNCTOR(ReprPrinter, vtable)
-.set_dispatch<IntervalSetNode>([](const ObjectRef& node, ReprPrinter* p) {
+TVM_STATIC_IR_FUNCTOR(NodePrinter, vtable)
+.set_dispatch<IntervalSetNode>([](const ObjectRef& node, NodePrinter* p) {
     auto* op = static_cast<const IntervalSetNode*>(node.get());
     p->stream << "IntervalSet"
               << "[" << op->min_value << ", "

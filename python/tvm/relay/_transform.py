@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 """FFI exposing the Relay type inference and checking."""
-import tvm._ffi
 
-tvm._ffi._init_api("relay._transform", __name__)
+from tvm._ffi.function import _init_api
+
+_init_api("relay._transform", __name__)

@@ -87,7 +87,7 @@ const GenericOpMap& Op::GetGenericAttr(const std::string& key) {
 }
 
 // Check if a key is present in the registry.
-bool Op::HasGenericAttr(const std::string& key) {
+const bool Op::HasGenericAttr(const std::string& key) {
   OpManager* mgr = OpManager::Global();
   std::lock_guard<std::mutex> lock(mgr->mutex);
   auto it = mgr->attr.find(key);
@@ -227,8 +227,8 @@ TVM_REGISTER_NODE_TYPE(OpNode)
     return static_cast<const OpNode*>(n)->name;
   });
 
-TVM_STATIC_IR_FUNCTOR(ReprPrinter, vtable)
-.set_dispatch<OpNode>([](const ObjectRef& ref, ReprPrinter* p) {
+TVM_STATIC_IR_FUNCTOR(NodePrinter, vtable)
+.set_dispatch<OpNode>([](const ObjectRef& ref, NodePrinter* p) {
     auto* node = static_cast<const OpNode*>(ref.get());
     p->stream << "Op(" << node->name << ")";
   });
